@@ -38,24 +38,38 @@ def pipe_run():
         
         transformer = Transformer(raw_data)
         if transformer.transform():
-            DBData = transformer.get_db_file()
-            if not DBData:
-                logger.warning("После трансформации данные для бд пусты. Завершение работы.")
-                return
-            
-            db_loader = DBLoader(DBData, conn)
-            db_loader.load_data()
+            db_data = transformer.get_db_file()
+            try:
+                if not db_data:
+                    logger.warning("После трансформации данные для бд пусты. Завершение работы.")
+                    return
+                db_loader = DBLoader(db_data, conn)
+                db_loader.load_data()
 
+            except Exception as e:
+                logger.info(f"Ошибка выгрузки в DB: {e}")
+  
             google_data = transformer.get_google_file(control_date)
-            if google_data is None:
-                logger.warning("Данные для Google Таблиц пусты. Пропускаю выгрузку.")
+            try:  
+                if not google_data:
+                    logger.warning("Данные для Google Таблиц пусты. Пропускаю выгрузку.")
 
-            else:
-                spreadsheet_name = 'FinalProjectTable'
-                google_loader = GoogleLoader(google_data, spreadsheet_name)
-                google_loader.export_metrics()
+                else:
+                    spreadsheet_name = 'FinalProjectTable'
+                    google_loader = GoogleLoader(google_data, spreadsheet_name)
+                    google_loader.export_metrics()
+            except Exception as e:
+                logger.exception(f"Ошибка выгрузки в Google Sheets: {e}")
 
-                EmailSender(google_data, control_date).send_msg()
+            try:      
+                if not google_data:
+                    logger.warning("Данные для отправки письма пусты. Пропускаю выгрузку.")
+
+                else:
+                    EmailSender(google_data, control_date).send_msg()
+
+            except Exception as e:
+                logger.exception(f"Ошибка отправки письма: {e}")
 
     except Exception as e:
         logger.exception(f"Критическая ошибка в процессе: {e}")

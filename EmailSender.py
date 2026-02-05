@@ -28,7 +28,6 @@ class EmailSender:
         
         rows_html = ""
         for i, row in enumerate(self.data[1:]):
-            # Если индекс четный, добавляем серый фон прямо в тег
             bg_color = 'background-color: #f2f2f2;' if i % 2 == 0 else ''
             
             rows_html += f"""
