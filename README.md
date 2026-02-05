@@ -15,6 +15,9 @@ graph LR
     style C fill:#ADD8E6,stroke:#333,stroke-width:2px
     style D fill:#dfd,stroke:#333,stroke-width:2px
     style E fill:#F0F8FF,stroke:#333,stroke-width:2px
+
+    classDef blackText color:#000
+    class A,B,C,D,E blackText
   ```
 
 ## Features
